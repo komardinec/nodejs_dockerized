@@ -1,0 +1,16 @@
+{
+  "name": "node_api",
+  "version": "1.0.0",
+  "description": "Node.js API with secret path ",
+  "license": "MIT",
+  "author": "@komardinec",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon --env-file=.env main.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
+  }
+}
