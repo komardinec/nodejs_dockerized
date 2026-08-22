@@ -3,8 +3,8 @@ import http from "http";
 // .env variables
 const SERVER_PORT = process.env.SERVER_PORT;
 const SECRET_MESSAGE = process.env.SECRET_MESSAGE;
-const USERNAME = process.env.USERNAME;
-const PASSWORD = process.env.PASSWORD;
+const USERNAME = process.env.SECRET_USER;
+const PASSWORD = process.env.SECRET;
 
 // Middleware section
 const logMiddleware = (req, res, next) => {
