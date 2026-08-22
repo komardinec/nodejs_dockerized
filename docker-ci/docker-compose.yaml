@@ -1,0 +1,16 @@
+services:
+  nginx:
+    build:
+      context: ./nginx/
+    ports:
+      - "80:80"
+    depends_on:
+      - nodejs-dockerized
+
+  nodejs-dockerized:
+    image: komardinecplusplus/nodejs-dockerized:1.0.0
+    env_file: 
+      - path: ./node/.env # TODO: in ansible make environment variables be closer to docker compose file (optionally)
+        required: true 
+    expose:
+      - "8080" # this is unnecessary, but it will be better if we make shure that Nginx will see our api
