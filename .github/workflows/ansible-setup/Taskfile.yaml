@@ -4,8 +4,8 @@ env:
   GITHUB_TOKEN:
     sh: gh auth token
   GCP_SSH_PRIVATE_KEY:
-    sh: cat test-dockerized
-  GCP_USERNAME: "test"
+    sh: cat #read from private key file or environment variable
+  GCP_USERNAME: "example"
 
 tasks:
   ansible-setup:
