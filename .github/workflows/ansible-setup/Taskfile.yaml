@@ -4,7 +4,8 @@ env:
   GITHUB_TOKEN:
     sh: gh auth token
   GCP_SSH_PRIVATE_KEY:
-    sh: cat # path to private key
+    sh: cat test-dockerized
+  GCP_USERNAME: "test"
 
 tasks:
   ansible-setup:
@@ -15,6 +16,7 @@ tasks:
         --container-architecture linux/amd64 \
         -s GITHUB_TOKEN="{{.GITHUB_TOKEN}}" \
         -s GCP_SSH_PRIVATE_KEY="{{.GCP_SSH_PRIVATE_KEY}}" \
+        -s GCP_USERNAME="{{.GCP_USERNAME}}" \
         -e {{.PWD}}/event.json \
         -P ubuntu-latest=catthehacker/ubuntu:act-latest \
         --directory ../../.. \

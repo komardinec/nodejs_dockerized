@@ -25,7 +25,7 @@ jobs:
       - name: Run Ansible playbook with dynamic inventory
         working-directory: ./ansible
         run: |
-          ansible-playbook main.yaml --private-key private_key.pem -u {{secrets.USERNAME}}
+          ansible-playbook playbooks/main.yaml --private-key private_key.pem -u "${{secrets.GCP_USERNAME}}"
 
 
 

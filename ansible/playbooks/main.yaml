@@ -1,0 +1,15 @@
+- name: Test GCP connectivity
+  hosts: app_nodejs_dockerized
+  tasks:
+    - name: Test connectivity 
+      ansible.builtin.ping:
+
+    - name: Execute "base" role
+      block:
+        - include_role: 
+            name: base
+      tags: 
+        - base
+        - first_step
+
+
