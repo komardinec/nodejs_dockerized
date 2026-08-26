@@ -1,0 +1,13 @@
+---
+plugin: gcp_compute
+projects:
+  - # name of the project
+zones:
+  - europe-central2-a
+auth_kind:  serviceaccount
+service_account_file: # path to service account .json file (can be changed to environment variable alternative)
+keyed_groups:
+  - prefix: app
+    key: labels.app
+#groups:
+#  remote: "'nodejs-dockerized' in (labels|list)"

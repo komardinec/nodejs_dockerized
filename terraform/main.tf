@@ -1,7 +1,12 @@
 resource "google_compute_instance" "vm-instance" {
   name = "dockerized-nodejs"
-  machine_type = "e2-small"
+  machine_type = "e2-micro"
   zone = "europe-central2-a"
+
+  labels = {
+    "app" = "nodejs-dockerized"
+    "nodejs-dockerized" = "true"
+  }
   
   boot_disk {
     initialize_params {

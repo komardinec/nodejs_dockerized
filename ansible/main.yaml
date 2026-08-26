@@ -1,0 +1,5 @@
+- name: Test GCP connectivity
+  hosts: app_nodejs_dockerized
+  tasks:
+    - name: Test connectivity 
+      ansible.builtin.ping:

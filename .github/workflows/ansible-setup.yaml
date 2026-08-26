@@ -1,0 +1,31 @@
+name: Set up GCP instances using Ansible with dynamic inventory
+
+on:
+  workflow_dispatch:
+
+jobs:
+ ansible:
+    name: Main Ansible CI workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout directory of project 
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch_depth: 0
+      - name: Install Ansible and GCP requirements in runner
+        run: |
+          sudo apt update
+          sudo apt install -y ansible python3-requests python3-google-auth
+          pwd
+      - name: Add SSH private_key to the environment
+        working-directory: ./ansible
+        run: | 
+          echo "${{secrets.GCP_SSH_PRIVATE_KEY}}" > private_key.pem
+          chmod 600 private_key.pem
+      - name: Run Ansible playbook with dynamic inventory
+        working-directory: ./ansible
+        run: |
+          ansible-playbook main.yaml --private-key private_key.pem -u {{secrets.USERNAME}}
+
+
+
