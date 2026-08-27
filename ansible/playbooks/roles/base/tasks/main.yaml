@@ -1,0 +1,47 @@
+---
+
+- name: Update apt packages cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Wait for /var/lib/dpkg/lock-frontend to be released
+  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 ; do sleep 10; done;
+
+- name: Update packages
+  ansible.builtin.apt:
+    upgrade: dist
+    #name: "*"
+    #state: latest 
+# - name: Check if restart is required
+
+- name: Restart server
+  ansible.builtin.reboot:
+    msg: "Rebooting after system update"
+    reboot_timeout: 600
+    post_reboot_delay: 30
+
+- name: Install necessary server packages
+  ansible.builtin.apt:
+    name:
+      - git
+      - curl
+      - tmux
+      - htop
+      - ufw
+      - curl
+      - nmap
+      - net-tools
+      - mc
+    state: present
+    update_cache: yes
+
+- name: Verify system health after reboot
+  ansible.builtin.command:
+    cmd: systemctl is-system-running
+  register: system_state
+  changed_when: false
+  failed_when: false
+
+- name: Display system state
+  ansible.builtin.debug:
+    msg: "{{inventory_hostname}} system state: {{system_state.stdout | default('not rebooted')}}"
