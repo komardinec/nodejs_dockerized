@@ -1,24 +1,33 @@
 ---
-
 - name: Update apt packages cache
   ansible.builtin.apt:
     update_cache: yes
 
+# https://github.com/ansible/ansible/issues/51663 - Issue created in 2019 and this behaviour persist in 2026.
+# A very common issue while using Ansible as an automatisation tool on cloud server instances, created by using images created for usage inside cloud infrastructure with cloud-init (in my case) running on it or if Ubuntu image been used unattended-upgrades will be the reason (most likely).
+# Early boot of instance will mean that cloud-init will still be executing its scripts to configure server instance for proper use (e.g. SSH keys from metadata, user account creation, installing packages and etc.) resulting in locking dpkg (in this case) package manageer lock file "/var/lib/dpkg/lock-frontend" or "/var/lib/dpkg/lock" from being used by other process in system. 
+# Currently this issue still exist. And I left with 2 workarounds: wait until lock-file being released by time or retry package installation and system upgrade a couple of times. Both of this are valid.  
 - name: Wait for /var/lib/dpkg/lock-frontend to be released
-  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 ; do sleep 10; done;
+  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 ; do sleep 10; done; # sudo when we become a root is a safety measure
 
 - name: Update packages
   ansible.builtin.apt:
     upgrade: dist
-    #name: "*"
-    #state: latest 
-# - name: Check if restart is required
+  #register: system_upgrade
+  #retries: 100
+  #until: system_upgrade is success or ("Failed to lock apt for exclusive operation" not in system_upgrade.msg and "/var/lib/dpkg/lock-frontend" not in system_upgrade.msg)
 
+- name: Check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+  
 - name: Restart server
   ansible.builtin.reboot:
     msg: "Rebooting after system update"
     reboot_timeout: 600
     post_reboot_delay: 30
+  when: reboot_required.stat.exists | default(false)
 
 - name: Install necessary server packages
   ansible.builtin.apt:

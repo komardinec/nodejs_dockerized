@@ -1,0 +1,39 @@
+---
+- name: Set default incoming policy
+  community.general.ufw:
+    default: deny
+    direction: incoming
+    log: true
+
+- name: Set default outgoing policy
+  community.general.ufw:
+    default: allow
+    direction: outgoing
+
+- name: Rate limit SSH connection
+  community.general.ufw:
+    rule: limit
+    port: "{{item}}"
+    proto: tcp
+    log: true
+  loop:
+    - 22
+    - 2200
+
+- name: Enable HTTP connection (web-server + reverse proxy)
+  community.general.ufw:
+    rule: allow
+    port: "{{item}}"
+  loop:
+    - 80
+    - 8080
+
+- name: Enable HTTPS connection
+  community.general.ufw:
+    rule: allow
+    port: 443
+
+- name: Start firewall and enable logging
+  community.general.ufw:
+    state: enabled
+    logging: "on"

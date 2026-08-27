@@ -1,0 +1,64 @@
+---
+- name: Change SSH connection port in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?Port "
+    line: Port {{ SSH_CUSTOM_PORT }}
+    owner: root
+    group: root
+    mode: "0644"
+- name: Change Root login permissions in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PermitRootLogin"
+    line: PermitRootLogin no
+    owner: root
+    group: root
+    mode: "0644"
+- name: Set MaxAuthTries in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?MaxAuthTries"
+    line: MaxAuthTries 3
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Set explicit .pub key authentication in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PubkeyAuthentication"
+    line: PubkeyAuthentication yes
+    owner: root
+    group: root
+    mode: "0644"
+- name: Exlicitely disable password authentication in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication"
+    line: PasswordAuthentication no
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Disable keyboard-interactive authentication in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?KerberosAuthentication"
+    line: KerberosAuthentication no
+    owner: root
+    group: root
+    mode: "0644"
+- name: Change GSSAPIAuthentication option in sshd_config
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?GSSAPIAuthentication"
+    line: GSSAPIAuthentication no
+    owner: root
+    group: root
+    mode: "0644"
+- name: Restart ssh (sshd) system service
+  ansible.builtin.service:
+    name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+    state: restarted
+

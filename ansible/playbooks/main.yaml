@@ -1,5 +1,22 @@
+- name: Check SSH port connectivity
+  hosts: app_nodejs_dockerized
+  gather_facts: false
+  vars_files:
+    - roles/ssh/vars/main.yaml
+  tasks:
+    - block:
+        - ansible.builtin.include_tasks: ssh_check.yaml
+        - name: SSH check completed
+          ansible.builtin.set_fact:
+            ssh_checked: true
+      when: not ssh_checked
+      check_mode: false
+
+
 - name: Test GCP connectivity
   hosts: app_nodejs_dockerized
+  become: true
+  become_method: sudo
   tasks:
     - name: Test connectivity 
       ansible.builtin.ping:
@@ -12,4 +29,18 @@
         - base
         - first_step
 
+    - name: Execute "firewall" role
+      block:
+        - include_role:
+            name: firewall
+      tags:
+        - firewall
+        - second_step
 
+    - name: Execute "ssh" role
+      block:
+        - include_role:
+            name: ssh
+      tags:
+        - ssh
+        - third_step
