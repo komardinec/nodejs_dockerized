@@ -3,7 +3,7 @@
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "^#?Port "
-    line: Port {{ SSH_CUSTOM_PORT }}
+    line: Port {{ ssh_custom_port }}
     owner: root
     group: root
     mode: "0644"

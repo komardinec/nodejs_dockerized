@@ -5,12 +5,11 @@
     - roles/ssh/vars/main.yaml
   tasks:
     - block:
-        - ansible.builtin.include_tasks: ssh_check.yaml
-        - name: SSH check completed
-          ansible.builtin.set_fact:
-            ssh_checked: true
-      when: not ssh_checked
+      - name: Include SSH check task
+        ansible.builtin.include_tasks: ssh_check.yaml
       check_mode: false
+      tags: 
+        - always
 
 
 - name: Test GCP connectivity

@@ -1,35 +1,36 @@
 ---
-- name: Check if custom SSH port is open
-  ansible.builtin_wait_for:
-    host: "{{ ansible_host }}"
-    port: "{{SSH_CUSTOM_PORT}}"
-    state: started
-    delay: 0
-    timeout: 3
-  deligate_to: localhost
-  ignore_errors: true
-  register: CUSTOM_SSH_PORT_CHECK
-
 - name: Check if default SSH port is open
-  ansible.builtin_wait_for:
-    host: "{{ ansible_host }}"
+  local_action: ansible.builtin.wait_for
+  args:
+    host: "{{ inventory_hostname }}"
     port: 22
     state: started
     delay: 0
-    timeout: 3
-  deligate_to: localhost
+    timeout: 30
+  #delegate_to: localhost
   ignore_errors: true
-  register: DEFAULT_SSH_PORT_CHECK
-  when: CUSTOM_SSH_PORT_CHECK.failed
+  register: ssh_default_port_check
+- name: Check if custom SSH port is open
+  local_action: ansible.builtin.wait_for
+  args:
+    host: "{{ inventory_hostname }}"
+    port: "{{ ssh_custom_port }}"
+    state: started
+    delay: 0
+    timeout: 30
+  #delegate_to: localhost
+  ignore_errors: true
+  register: ssh_custom_port_check
+  when: ssh_default_port_check.failed
 
 - name: Set ansible_port to custom port
   ansible.builtin.set_fact:
-    ansible_port: "{{ CUSTOM_SSH_PORT }}"
-  when: CUSTOM_SSH_PORT_CHECK.state is defined and CUSTOM_SSH_PORT_CHECK.state == "started"
+    ansible_port: "{{ ssh_custom_port }}"
+  when: ssh_custom_port_check.state is defined and ssh_custom_port_check.state == "started"
 - name: Set ansible_port to default port
   ansible.builtin.set_fact:
     ansible_port: 22
-  when: DEFAULT_SSH_PORT_CHECK.state is defined and DEFAULT_SSH_PORT_CHECK.state == "started"
+  when: ssh_default_port_check.state is defined and ssh_default_port_check.state == "started"
 
 - name: Gather facts
   ansible.builtin.gather_facts:

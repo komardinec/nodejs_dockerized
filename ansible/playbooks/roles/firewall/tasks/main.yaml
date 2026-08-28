@@ -13,12 +13,15 @@
 - name: Rate limit SSH connection
   community.general.ufw:
     rule: limit
-    port: "{{item}}"
+    port: 2200
     proto: tcp
     log: true
-  loop:
-    - 22
-    - 2200
+
+- Disable default SSH port:
+  community.general.ufw:
+    rule: deny
+    port: 22
+    proto: tcp
 
 - name: Enable HTTP connection (web-server + reverse proxy)
   community.general.ufw:
