@@ -1,0 +1,93 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Docker installation dependencies
+  ansible.builtin.apt:
+    name:
+      - bc
+      - curl
+      - expect
+      - git
+      - ca-certificates
+    state: present
+
+- name: Create Docker GPG directory
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+
+- name: Download Docker's official GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: "/etc/apt/keyrings/docker.asc"
+    mode: "0644"
+
+- name: Use dpkg to get architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: dpkg_architecture
+  changed_when: false
+
+- name: Add Docker repository to Apt sources
+  ansible.builtin.deb822_repository:
+    name: "Docker"
+    types: deb
+    uris: https://download.docker.com/linux/debian
+    suites: "{{ ansible_distribution_release }}"
+    components: stable
+    architectures: "{{ dpkg_architecture.stdout }}"
+    signed_by: "/etc/apt/keyrings/docker.asc"
+
+- name: Install Docker
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Ensure Docker service is enable and started
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Create directory for deployment
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ deploy_directory }}/"
+    - "{{ deploy_directory }}/nginx"
+    - "{{ deploy_directory }}/node"
+
+- name: Transfer docker-compose.file, .env and default.conf
+  ansible.builtin.copy: # it might be better to copy files inside file/ directory
+    src: "{{ item.local }}"
+    dest: "{{ item.remote }}"
+    mode: "0644"
+  loop:
+    - { local: '../../docker-ci/docker-compose.yaml', remote: '{{ deploy_directory }}/docker-compose.yaml' }
+    - { local: '../../docker-ci/nginx/', remote: '{{ deploy_directory }}/nginx/' }
+    - { local: '../../docker-ci/node/.env', remote: '{{ deploy_directory }}/node/.env' }
+
+- name: Start app using docker-compose
+  block:
+    - name: Tear down existing services
+      community.docker.docker_compose_v2:
+        project_src: /opt/nodejs_dockerized
+        state: absent
+    - name: Create and start nodejs_dockerized service
+      community.docker.docker_compose_v2:
+        project_src: /opt/nodejs_dockerized
+      register: docker_result
+    - name: Show result
+      ansible.builtin.debug:
+        var: docker_result
+

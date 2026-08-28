@@ -11,7 +11,9 @@ jobs:
       - name: Checkout directory of project 
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch_depth: 0
+          fetch_depth: 100
+     # - name: Set up Docker
+     #   uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1
       - name: Install Ansible and GCP requirements in runner
         run: |
           sudo apt update
@@ -25,7 +27,7 @@ jobs:
       - name: Run Ansible playbook with dynamic inventory
         working-directory: ./ansible
         run: |
-          ansible-playbook playbooks/main.yaml --private-key private_key.pem -u "${{secrets.GCP_USERNAME}}"
+          ansible-playbook playbooks/main.yaml --private-key private_key.pem -u "${{secrets.GCP_USERNAME}}" --tags "app" -vvv
 
 
 

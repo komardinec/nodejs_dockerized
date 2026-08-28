@@ -39,7 +39,6 @@
       - tmux
       - htop
       - ufw
-      - curl
       - nmap
       - net-tools
       - mc

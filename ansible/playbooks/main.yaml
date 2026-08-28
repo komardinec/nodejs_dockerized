@@ -43,3 +43,11 @@
       tags:
         - ssh
         - third_step
+
+    - name: Execute "app" role
+      block:
+        - include_role:
+            name: app
+      tags:
+        - app
+        - fourth_step
