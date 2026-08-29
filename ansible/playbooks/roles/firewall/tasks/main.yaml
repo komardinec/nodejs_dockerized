@@ -17,7 +17,7 @@
     proto: tcp
     log: true
 
-- Disable default SSH port
+- name: Disable default SSH port
   community.general.ufw:
     rule: deny
     port: 22
