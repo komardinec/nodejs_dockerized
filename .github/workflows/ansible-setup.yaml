@@ -43,9 +43,8 @@ jobs:
       - name: Export service account content to file
         working-directory: ./ansible/inventory
         run: |
-          #export GCP_SERVICE_FILE_CONTENTS="\"${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}\""
           echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
-          echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json
+          $(echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json) > /dev/null 2>&1
           chmod 600 service_account_file.json
           cat service_account_file.json
       - name: Run Ansible playbook with dynamic inventory
