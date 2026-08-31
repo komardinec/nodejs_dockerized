@@ -61,7 +61,7 @@ jobs:
         id: fmt
         run: terraform fmt
       - name: Terraform check Format
-        id: fmt
+        id: fmt-check
         run: terraform fmt -check
       - name: Terraform Plan
         id: plan
