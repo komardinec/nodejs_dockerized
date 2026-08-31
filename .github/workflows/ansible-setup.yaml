@@ -25,6 +25,21 @@ jobs:
           echo "::add-mask::${{secrets.GCP_SSH_PRIVATE_KEY}}"
           echo "${{secrets.GCP_SSH_PRIVATE_KEY}}" > private_key.pem
           chmod 600 private_key.pem
+      - name: Create .env file for node.js server
+        env:
+          NODEJS_SERVER_PORT: ${{ secrets.NODEJS_SERVER_PORT }}
+          NODEJS_SECRET_MESSAGE: ${{ secrets.NODEJS_SECRET_MESSAGE }}
+          NODEJS_SECRET_USER: ${{ secrets.NODEJS_SECRET_USER }}
+          NODEJS_SECRET: ${{ secrets.NODEJS_SECRET }}
+        working-directory: ./docker-ci
+        run: |
+          cat << EOF > ./node/.env
+          SERVER_PORT="$NODEJS_SERVER_PORT"
+          SECRET_MESSAGE="$NODEJS_SECRET_MESSAGE"
+          SECRET_USER="$NODEJS_SECRET_USER"
+          SECRET="$NODEJS_SECRET"
+          EOF
+
       - name: Export service account content to file
         working-directory: ./ansible
         run: |
