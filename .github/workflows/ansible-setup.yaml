@@ -44,7 +44,9 @@ jobs:
         working-directory: ./ansible/inventory
         run: |
           echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
-          $(echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json) > /dev/null 2>&1
+          echo -n -e "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" > service_account_file.json 
+          base64 -i -d service_account_file.json > service_account_file.json
+          #echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json
           chmod 600 service_account_file.json
           cat service_account_file.json
       - name: Run Ansible playbook with dynamic inventory
