@@ -16,7 +16,7 @@ env:
   GOOGLE_REGION: ${{ secrets.GCP_PROJECT_REGION }}
   GOOGLE_ZONE: ${{ secrets.GCP_PROJECT_ZONE }}
   # Terraform state file contents
-  GCP_TF_STATE: ${{ secrets.GCP_TF_STATE }}
+  # GCP_TF_STATE: ${{ secrets.GCP_TF_STATE }}
 
 jobs:
   terraform-provision:
@@ -37,7 +37,7 @@ jobs:
       - name: Download Encrypted Artifact & Decrypt Artifact
         uses: badgerhobbs/terraform-state@eacf740367a4a879626510770a6ea101c63c3c00
         with:
-          encryption_key: ${{ secrets.ENCRYPTION_KEY }}
+          encryption_key: ${{ secrets.ARTIFACT_ENCRYPTION_KEY }}
           operation: download
           location: artifact
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,6 +46,7 @@ jobs:
       - name: Create GCP credentials file
         run: |
           #export GCP_SERVICE_FILE_CONTENTS="\"${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}\""
+          echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
           echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json
           chmod 600 service_account_file.json
           cat service_account_file.json
@@ -75,7 +76,7 @@ jobs:
       - name: Encrypt Artifact & Upload Encrypted Artifact
         uses: badgerhobbs/terraform-state@v2
         with:
-          encryption_key: ${{ secrets.ENCRYPTION_KEY }}
+          encryption_key: ${{ secrets.ARTIFACT_ENCRYPTION_KEY }}
           operation: upload
           location: artifact
           github_token: ${{ secrets.GITHUB_TOKEN }}
