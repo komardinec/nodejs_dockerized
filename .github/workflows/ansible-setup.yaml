@@ -14,12 +14,20 @@ jobs:
           fetch_depth: 100
      # - name: Set up Docker
      #   uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1
-      - name: Install Ansible and GCP requirements in runner
+      - name: Install Ansible
         run: |
           sudo apt update
-          pip3 install requests google-auth
           sudo apt install -y ansible
           pwd
+      - name: Set up Python 
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.13"
+      - name: Install Python dependencies for gcp_compute Ansible inventory module
+        run: |
+          #python -m pip install --upgrade pip
+          #pip install requests google-auth
+          sudo apt install -y python3-requests python3-google-auth
       - name: Add SSH private_key to the environment
         working-directory: ./ansible
         run: |
