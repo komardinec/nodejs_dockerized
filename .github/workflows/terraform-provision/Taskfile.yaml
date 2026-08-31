@@ -1,0 +1,35 @@
+version: "3"
+
+env:
+  GITHUB_TOKEN:
+    sh: gh auth token
+  GCP_SSH_PRIVATE_KEY:
+    sh: cat name_of_file # read from private key file or environment variable
+  GCP_SERVICE_ACCOUNT_CONTENTS:
+    #sh: cat gha_admin.json | jq -R -c 
+    #sh: cat gha_string.json
+    sh: cat name_of_file | base64 | tr -d '\n'
+  ENCRYPTION_KEY:
+    sh: cat aes-256-key 
+  GCP_PROJECT_NAME: "example-project"
+  GCP_PROJECT_REGION: ""
+  GCP_PROJECT_ZONE: ""
+
+
+tasks:
+  terraform-provision:
+    desc: Provision infrastructure on GCP using Terraform
+    cmds:
+      - |
+        act workflow_dispatch \
+        --container-architecture linux/amd64 \
+        -e {{.PWD}}/event.json \
+        -P ubuntu-latest=catthehacker/ubuntu:act-latest \
+        --directory ../../.. \
+        -W .github/workflows/terraform-provision.yaml \
+        -s GITHUB_TOKEN="{{.GITHUB_TOKEN}}" \
+        -s ENCRYPTION_KEY="{{.ENCRYPTION_KEY}}" \
+        -s GCP_SERVICE_ACCOUNT_CONTENTS='{{.GCP_SERVICE_ACCOUNT_CONTENTS}}' \
+        -s GCP_PROJECT_NAME="{{.GCP_PROJECT_NAME}}" \
+        -s GCP_PROJECT_REGION="{{.GCP_PROJECT_REGION}}" \
+        -s GCP_PROJECT_ZONE="{{.GCP_PROJECT_ZONE}}" 

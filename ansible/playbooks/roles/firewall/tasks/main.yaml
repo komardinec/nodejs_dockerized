@@ -17,11 +17,11 @@
     proto: tcp
     log: true
 
-- Disable default SSH port:
+- name: Disable default SSH port
   community.general.ufw:
     rule: deny
     port: 22
-    proto: tcp
+    proto: any
 
 - name: Enable HTTP connection (web-server + reverse proxy)
   community.general.ufw:
