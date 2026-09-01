@@ -21,12 +21,12 @@ jobs:
       - name: Install Ansible
         run: |
           sudo apt update
-          sudo apt install -y ansible
+          sudo apt install -y ansible python3-google-auth python3-requests
           pwd
-      - name: Install Python dependencies for gcp_compute Ansible inventory module
-        run: |
-          #sudo python -m pip install --upgrade pip
-          sudo pip install requests google-auth
+     # - name: Install Python dependencies for gcp_compute Ansible inventory module
+     #   run: |
+     #     #sudo python -m pip install --upgrade pip
+     #     sudo pip install requests google-auth
           #sudo apt install -y python3-requests python3-google-auth
       - name: Add SSH private_key to the environment
         working-directory: ./ansible
