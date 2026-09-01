@@ -2,9 +2,6 @@ name: Destroy infrastructure on GCP using Terraform
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 env:
   # enable info level of terraform logging
@@ -62,9 +59,9 @@ jobs:
       - name: Terraform check Format
         id: fmt-check
         run: terraform fmt -check
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan -input=false
+      #- name: Terraform Plan
+      #  id: plan
+      #  run: terraform plan -input=false
       - name: Destroy existing architecture
         if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
         id: destroy
