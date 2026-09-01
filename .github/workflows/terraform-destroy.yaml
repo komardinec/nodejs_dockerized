@@ -1,0 +1,83 @@
+name: Destroy infrastructure on GCP using Terraform
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  # enable info level of terraform logging
+  TF_LOG: INFO
+  # GCP project name
+  GOOGLE_PROJECT: ${{ secrets.GCP_PROJECT_NAME }}
+  GOOGLE_REGION: ${{ secrets.GCP_PROJECT_REGION }}
+  GOOGLE_ZONE: ${{ secrets.GCP_PROJECT_ZONE }}
+  # Terraform state file contents
+  # GCP_TF_STATE: ${{ secrets.GCP_TF_STATE }}
+
+jobs:
+  terraform-provision:
+    name: Main Terraform CI workflow
+    defaults:
+      run:
+        working-directory: ./terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout directory of project 
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch_depth: 100
+
+      - name: Setup Terraform inside runner using latest version
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+
+      - name: Download Encrypted Artifact & Decrypt Artifact
+        uses: badgerhobbs/terraform-state@eacf740367a4a879626510770a6ea101c63c3c00
+        with:
+          encryption_key: ${{ secrets.ARTIFACT_ENCRYPTION_KEY }}
+          operation: download
+          location: artifact
+          directory: ./terraform
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Create GCP credentials file
+        run: |
+          #export GCP_SERVICE_FILE_CONTENTS="\"${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}\""
+          echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
+          echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json
+          chmod 600 service_account_file.json
+          cat service_account_file.json
+      #- name: Authenticate against GCP
+      #  uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
+      #  with:
+      #    credentials_json: "./service_account_file.json"
+      - name: Terraform init 
+        id: init
+        run: terraform init
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt
+      - name: Terraform check Format
+        id: fmt-check
+        run: terraform fmt -check
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -input=false
+      - name: Destroy existing architecture
+        if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+        id: destroy
+        run: terraform destroy -auto-approve -input=false
+      #- name: Terraform Apply
+      #  if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+      #  run: terraform apply -auto-approve -input=false
+      
+      - name: Encrypt Artifact & Upload Encrypted Artifact
+        uses: badgerhobbs/terraform-state@v2
+        with:
+          encryption_key: ${{ secrets.ARTIFACT_ENCRYPTION_KEY }}
+          operation: upload
+          location: artifact
+          directory: ./terraform
+          github_token: ${{ secrets.GITHUB_TOKEN }}
