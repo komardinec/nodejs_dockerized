@@ -6,6 +6,7 @@ services:
       - "80:80"
     depends_on:
       - nodejs-dockerized
+    restart: unless-stopped
 
   nodejs-dockerized:
     image: komardinecplusplus/nodejs-dockerized:1.0.0
@@ -14,3 +15,4 @@ services:
         required: true 
     expose:
       - "8080" # this is unnecessary, but it will be better if we make shure that Nginx will see our api
+    restart: unless-stopped
