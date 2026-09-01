@@ -42,12 +42,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-      - name: Create GCP credentials file
-        run: |
-          echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
-          echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json
-          chmod 600 service_account_file.json
-          cat service_account_file.json
       - name: Export service account content to file
         working-directory: ./ansible
         run: |
