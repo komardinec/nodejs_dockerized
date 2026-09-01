@@ -10,8 +10,6 @@ env:
   GOOGLE_PROJECT: ${{ secrets.GCP_PROJECT_NAME }}
   GOOGLE_REGION: ${{ secrets.GCP_PROJECT_REGION }}
   GOOGLE_ZONE: ${{ secrets.GCP_PROJECT_ZONE }}
-  # Terraform state file contents
-  # GCP_TF_STATE: ${{ secrets.GCP_TF_STATE }}
 
 jobs:
   terraform-provision:
@@ -39,17 +37,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-      - name: Create GCP credentials file
+      - name: Export service account content to file
+        working-directory: ./ansible
         run: |
-          #export GCP_SERVICE_FILE_CONTENTS="\"${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}\""
           echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
-          echo -n -e  "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" | base64 --decode > service_account_file.json
+          echo -n -e "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" > base64_account_file.json 
+          base64 -d base64_account_file.json > service_account_file.json
           chmod 600 service_account_file.json
-          cat service_account_file.json
-      #- name: Authenticate against GCP
-      #  uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093
-      #  with:
-      #    credentials_json: "./service_account_file.json"
       - name: Terraform init 
         id: init
         run: terraform init
