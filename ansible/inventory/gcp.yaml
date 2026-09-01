@@ -1,7 +1,7 @@
 ---
 plugin: google.cloud.gcp_compute
 projects:
-  - test-project-499111 # name of the project
+  - project-931d2b58-2ab3-43b7-bcd # name of the project
 zones:
   - europe-central2-a
 auth_kind:  serviceaccount
