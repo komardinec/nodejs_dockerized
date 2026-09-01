@@ -18,11 +18,12 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: "3.13"
-      - name: Install Ansible
+      - name: Install Ansible and dependencies for GCP 
         run: |
           sudo apt update
           sudo apt install -y ansible python3-google-auth python3-requests
           pipx inject ansible-core google-auth requests
+          ansible-galaxy collection install google-cloud
           pwd
      # - name: Install Python dependencies for gcp_compute Ansible inventory module
      #   run: |
