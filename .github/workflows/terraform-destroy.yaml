@@ -38,7 +38,7 @@ jobs:
         continue-on-error: true
 
       - name: Export service account content to file
-        working-directory: ./ansible
+        working-directory: ./terraform
         run: |
           echo "::add-mask::${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}"
           echo -n -e "${{secrets.GCP_SERVICE_ACCOUNT_CONTENTS}}" > base64_account_file.json 
