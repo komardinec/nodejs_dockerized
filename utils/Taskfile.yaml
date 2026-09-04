@@ -1,0 +1,11 @@
+version: "3"
+
+tasks: 
+  generate-version:
+    desc: "Use git describe to create a tag based on the latest release tag (manual/by push)"
+    vars:
+      SERVICE_RELEASE_TAG: "{{.CLI_ARGS}}"
+    cmds:
+      - |
+        set -euo pipefall
+
