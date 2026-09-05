@@ -6,13 +6,13 @@ inputs:
     default: true
   task_version:
     description: version of go-task to install
-    default: 3.53.1
+    default: v3.53.1
 
 runs:
   using: composite
   steps:
     - name: Install a go-task binary
-      if: ${{ inputs.install_task == "true" }}
+      if: ${{ inputs.install_task == 'true' }}
       uses: supplypike/setup-bin@8365380a806a88e7a0f0d07059b175ca2f5418d7 # v5.0.1
       with:
         uri: "https://github.com/go-task/task/releases/download/${{ inputs.task_version }}/task_linux_amd64.tar.gz"

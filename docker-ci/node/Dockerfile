@@ -17,7 +17,7 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /api_app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY --from=build /api_app/main.js ./
 

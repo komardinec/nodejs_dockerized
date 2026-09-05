@@ -7,7 +7,7 @@ tasks:
       GITHUB_REF: "{{.CLI_ARGS}}"
     cmds:
       - |
-        set -euo pipefall
+        set -euo pipefail
         GITHUB_REF={{.GITHUB_REF}}
         VERSION="${GITHUB_REF#refs/tags/}"
         PUSH_TAG="komardinecplusplus/nodejs-dockerized:${VERSION}"
@@ -21,4 +21,4 @@ tasks:
     cmds:
       - |
         echo "komardinecplusplus/nodejs-dockerized:{{.VERSION}}"
-
+    silent: true
