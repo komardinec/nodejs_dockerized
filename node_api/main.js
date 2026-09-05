@@ -64,7 +64,7 @@ const responseHandler = (req, res) => {
         res.end();
     } else if (res.statusCode === 401) {
         res.write("Error 401.<br/>");
-        res.write("Authentication failed. Wrong credentials");
+        res.write("Authentication failed. Wrong credentials.");
         res.end();
     }
 };
