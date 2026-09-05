@@ -13,54 +13,60 @@ on:
       - node_api/**
       - docker-ci/node/Dockerfile
     tags: 
-      - "**@[0-9]*.[0-9]*.[0-9]*"
+      - "**[0-9]*.[0-9]*.[0-9]*"
 
 jobs:
   nodejs_container:
-    name: Main Node.js Docker workflow
+    name: Main Nodejs Docker workflow
     runs-on: ubuntu-latest
     steps:
       - name: Checkout directory of project 
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch_depth: 0
+
       - name: Install a task binary
         uses: ./.github/actions/setup-dependencies
+      
       - name: Auth to Dockerhub registry
         if: ${{ !env.ACT }}
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with: 
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
       - name: Set up QEMU
         uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a # v4.3.0
+      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e #v4.3.0
+      
       - name: Compute image tag
         id: image-tag
+        working-directory: ./utils/
         env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_VERSION: ${{ github.event_name == "workflow_dispatch" && inputs.version || '' }}
-          GITHUB_REF: ${{ github.ref }}
+          INPUT_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || '' }}
+          GITHUB_REF: ${{ github.ref }} 
+          GITHUB_EVENT: ${{ github.event_name }}
         run: |
           if [[ -n "$INPUT_VERSION" ]]; then
-            image_tag=$(task utils:manual-version-tag -- "$INPUT_VERSION")
-          elif [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            image_tag=$(task utils:push-version-tag -- "$GITHUB_REF")
+            image_tag=$(task manual-version-tag -- "$INPUT_VERSION")
+          elif [[ "$GITHUB_REF" == *"refs/tags"* ]]; then
+            image_tag=$(task push-version-tag -- "$GITHUB_REF")
+          fi
           echo "image_tag=${image_tag}" >> $GITHUB_OUTPUT
-      
+
+          echo "image_tag=${image_tag}" 
       - name: Create context for Docker container image
         run: |
-        cp -r node_api/ docker-ci/node
+          cp -r node_api/* docker-ci/node
 
-      - name: Build and push actual image
+      - name: Build and push image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: docker-ci/node
           push: ${{ !env.ACT }}
-          tags: 
-            - ${{ steps.image-tag.outputs.image_tag }}
-            - komardinecplusplus/nodejs_dockerized:latest
+          tags: ${{ steps.image-tag.outputs.image_tag }}
           platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha, mode=max
